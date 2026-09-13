@@ -1,0 +1,152 @@
+:root {
+  --bg: #0f0f12;
+  --card-bg: #18181c;
+  --primary: #e50914;
+  --primary-hover: #b20710;
+  --text: #ffffff;
+  --subtext: #a0a0a0;
+  --border: #2a2a30;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.navbar {
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brand {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-links a {
+  color: var(--subtext);
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.nav-links a:hover, .nav-links a.active {
+  color: var(--primary);
+}
+
+.main-container {
+  max-width: 1200px;
+  width: 90%;
+  margin: 40px auto;
+  flex: 1;
+}
+
+.page-title {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.page-subtitle {
+  color: var(--subtext);
+  margin-bottom: 30px;
+}
+
+.grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.step-box {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 30px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.form-step { display: none; }
+.form-step.active { display: block; }
+
+.form-group { margin-bottom: 20px; }
+
+label {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  color: #ccc;
+}
+
+input, select {
+  width: 100%;
+  padding: 12px;
+  background: #222226;
+  border: 1px solid var(--border);
+  color: #fff;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-primary:hover { background: var(--primary-hover); }
+
+.btn-secondary {
+  background: #333;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  background: #2e7d32;
+  color: #fff;
+}
+
+.badge.offline { background: #c62828; }

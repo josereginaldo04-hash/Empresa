@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Trabalhador - TrampoJá</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <header class="navbar">
+    <a href="/" class="brand">TrampoJá</a>
+    <nav class="nav-links">
+      <a href="/">Início</a>
+      <a href="/cadastro">Cadastrar-se</a>
+      <a href="/contratante">Painel Contratante</a>
+      <a href="/trabalhador" class="active">Painel Trabalhador</a>
+    </nav>
+  </header>
+
+  <main class="main-container">
+    <h1 class="page-title">Seu Painel de Disponibilidade</h1>
+    <p class="page-subtitle">Altere seu status de disponibilidade para aparecer na busca do servidor em tempo real:</p>
+
+    <div class="card" style="max-width: 500px;">
+      <h2>Carlos Eduardo</h2>
+      <p style="color:#aaa; margin: 6px 0;">Auxiliar de Logistica • Recife - PE</p>
+      <p style="margin: 16px 0;">Status Atual: <span id="statusLabel" class="badge">ONLINE</span></p>
+
+      <button class="btn-primary" id="btnToggle" onclick="alternarStatus()">Ficar Offline</button>
+    </div>
+  </main>
+
+  <script>
+    let isOnline = true;
+
+    async function alternarStatus() {
+      isOnline = !isOnline;
+
+      const res = await fetch('/api/trabalhador/status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: 1, online: isOnline })
+      });
+
+      const data = await res.json();
+      
+      const badge = document.getElementById('statusLabel');
+      const btn = document.getElementById('btnToggle');
+
+      if (isOnline) {
+        badge.textContent = 'ONLINE';
+        badge.className = 'badge';
+        btn.textContent = 'Ficar Offline';
+      } else {
+        badge.textContent = 'OFFLINE';
+        badge.className = 'badge offline';
+        btn.textContent = 'Ficar Online';
+      }
+    }
+  </script>
+
+</body>
+</html>
