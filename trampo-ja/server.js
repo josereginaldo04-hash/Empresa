@@ -7,8 +7,9 @@ const app = express();
 // Middlewares
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Servir arquivos estáticos da pasta public (para arquivos .css, .js, .html)
+// Servir arquivos estáticos da pasta public
 app.use(express.static(path.join(__dirname, 'public')));
 
 // "Bancos de dados" temporários em memória
@@ -16,25 +17,32 @@ const trabalhadores = [];
 const empresas = [];
 
 // ================= ROTAS DE PÁGINAS (FRONTEND) =================
+// Garante que qualquer uma dessas URLs abra a tela do formulário sem erro de GET
 
-// Redireciona a raiz do site (/) para o formulário de cadastro
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'cadastro.html'));
 });
 
-// Permite acessar /cadastro sem precisar escrever .html na URL
 app.get('/cadastro', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'cadastro.html'));
+});
+
+app.get('/trabalhador', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'cadastro.html'));
+});
+
+app.get('/contratante', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'cadastro.html'));
 });
 
 // ================= ROTAS DE API (BACKEND) =================
 
-// Cadastrar Trabalhador (Pessoa Física - PF)
+// 1. Cadastrar Trabalhador / Profissional (PF)
 app.post('/api/cadastrar-trabalhador', (req, res) => {
   const { nome, cpf, email, telefone, especialidade, valorHora, localizacao, descricao } = req.body;
 
   if (!nome || !cpf || !email || !telefone || !especialidade) {
-    return res.status(400).json({ erro: 'Por favor, preencha todos os campos obrigatórios do trabalhador.' });
+    return res.status(400).json({ erro: 'Preencha todos os campos obrigatórios do trabalhador.' });
   }
 
   const novoTrabalhador = {
@@ -52,7 +60,7 @@ app.post('/api/cadastrar-trabalhador', (req, res) => {
   };
 
   trabalhadores.push(novoTrabalhador);
-  console.log('Novo Profissional Cadastrado:', novoTrabalhador);
+  console.log('Novo Profissional:', novoTrabalhador);
 
   return res.status(201).json({
     sucesso: true,
@@ -61,12 +69,12 @@ app.post('/api/cadastrar-trabalhador', (req, res) => {
   });
 });
 
-// Cadastrar Empresa (Pessoa Jurídica - PJ)
+// 2. Cadastrar Empresa / Contratante (PJ)
 app.post('/api/cadastrar-empresa', (req, res) => {
   const { nomeEmpresa, cnpj, email, telefone, responsavel, ramo, endereco } = req.body;
 
   if (!nomeEmpresa || !cnpj || !email || !telefone || !responsavel || !ramo) {
-    return res.status(400).json({ erro: 'Por favor, preencha todos os campos obrigatórios da empresa.' });
+    return res.status(400).json({ erro: 'Preencha todos os campos obrigatórios do contratante/empresa.' });
   }
 
   const novaEmpresa = {
@@ -83,16 +91,16 @@ app.post('/api/cadastrar-empresa', (req, res) => {
   };
 
   empresas.push(novaEmpresa);
-  console.log('Nova Empresa Cadastrada:', novaEmpresa);
+  console.log('Nova Empresa/Contratante:', novaEmpresa);
 
   return res.status(201).json({
     sucesso: true,
-    mensagem: 'Empresa cadastrada com sucesso!',
+    mensagem: 'Contratante/Empresa cadastrado com sucesso!',
     dados: novaEmpresa
   });
 });
 
-// Rotas de consulta de dados
+// Rotas de consulta
 app.get('/api/trabalhadores', (req, res) => res.json(trabalhadores));
 app.get('/api/empresas', (req, res) => res.json(empresas));
 
