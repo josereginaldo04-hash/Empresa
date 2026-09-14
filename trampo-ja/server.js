@@ -1,110 +1,144 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const nodemailer = require('nodemailer');
 
 const app = express();
 
 // Middlewares
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Servir arquivos estáticos da pasta public
 app.use(express.static(path.join(__dirname, 'public')));
 
-// "Bancos de dados" temporários em memória
+// Banco de dados temporário em memória
 const trabalhadores = [];
 const empresas = [];
+const solicitacoes = [];
 
-// ================= ROTAS DE PÁGINAS (FRONTEND) =================
-// Garante que qualquer uma dessas URLs abra a tela do formulário sem erro de GET
-
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'cadastro.html'));
+// Configuração do Transportador de E-mail (Nodemailer)
+// NOTA: Para funcionar na prática, insira seu e-mail e senha de aplicativo
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER || 'seu-email@gmail.com',
+    pass: process.env.EMAIL_PASS || 'sua-senha-de-aplicativo'
+  }
 });
 
-app.get('/cadastro', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'cadastro.html'));
-});
+// ==========================================
+// 1. ROTAS DAS PÁGINAS (HTML)
+// ==========================================
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'cadastro.html')));
+app.get('/trabalhador', (req, res) => res.sendFile(path.join(__dirname, 'public', 'trabalhador.html')));
+app.get('/contratante', (req, res) => res.sendFile(path.join(__dirname, 'public', 'contratante.html')));
 
-app.get('/trabalhador', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'cadastro.html'));
-});
+// ==========================================
+// 2. ROTAS DE CADASTRO (API)
+// ==========================================
 
-app.get('/contratante', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'cadastro.html'));
-});
-
-// ================= ROTAS DE API (BACKEND) =================
-
-// 1. Cadastrar Trabalhador / Profissional (PF)
+// Cadastrar Trabalhador (PF)
 app.post('/api/cadastrar-trabalhador', (req, res) => {
-  const { nome, cpf, email, telefone, especialidade, valorHora, localizacao, descricao } = req.body;
+  const { nome, cpf, email, telefone, especialidade } = req.body;
 
   if (!nome || !cpf || !email || !telefone || !especialidade) {
-    return res.status(400).json({ erro: 'Preencha todos os campos obrigatórios do trabalhador.' });
+    return res.status(400).json({ erro: 'Preencha todos os campos obrigatórios.' });
   }
 
   const novoTrabalhador = {
     id: trabalhadores.length + 1,
     tipo: 'PF',
-    nome,
-    cpf,
-    email,
-    telefone,
-    especialidade,
-    valorHora: valorHora ? parseFloat(valorHora) : 0,
-    localizacao,
-    descricao,
+    ...req.body,
     dataCadastro: new Date()
   };
 
   trabalhadores.push(novoTrabalhador);
-  console.log('Novo Profissional:', novoTrabalhador);
-
   return res.status(201).json({
     sucesso: true,
-    mensagem: 'Profissional cadastrado com sucesso!',
+    mensagem: 'Profissional cadastrado com sucesso na JR Serviços!',
     dados: novoTrabalhador
   });
 });
 
-// 2. Cadastrar Empresa / Contratante (PJ)
+// Cadastrar Empresa (PJ)
 app.post('/api/cadastrar-empresa', (req, res) => {
-  const { nomeEmpresa, cnpj, email, telefone, responsavel, ramo, endereco } = req.body;
+  const { nomeEmpresa, cnpj, email, telefone, responsavel, ramo } = req.body;
 
   if (!nomeEmpresa || !cnpj || !email || !telefone || !responsavel || !ramo) {
-    return res.status(400).json({ erro: 'Preencha todos os campos obrigatórios do contratante/empresa.' });
+    return res.status(400).json({ erro: 'Preencha todos os campos obrigatórios.' });
   }
 
   const novaEmpresa = {
     id: empresas.length + 1,
     tipo: 'PJ',
-    nomeEmpresa,
-    cnpj,
-    email,
-    telefone,
-    responsavel,
-    ramo,
-    endereco,
+    ...req.body,
     dataCadastro: new Date()
   };
 
   empresas.push(novaEmpresa);
-  console.log('Nova Empresa/Contratante:', novaEmpresa);
-
   return res.status(201).json({
     sucesso: true,
-    mensagem: 'Contratante/Empresa cadastrado com sucesso!',
+    mensagem: 'Empresa cadastrada com sucesso na JR Serviços!',
     dados: novaEmpresa
   });
 });
 
-// Rotas de consulta
+// Listar cadastros
 app.get('/api/trabalhadores', (req, res) => res.json(trabalhadores));
 app.get('/api/empresas', (req, res) => res.json(empresas));
 
-// Porta dinâmica para o Render
+// ==========================================
+// 3. ROTA PARA CHAMAR/NOTIFICAR UM TRABALHADOR
+// ==========================================
+app.post('/api/solicitar-servico', async (req, res) => {
+  const { emailTrabalhador, nomeEmpresa, mensagemProposta, telefoneEmpresa } = req.body;
+
+  if (!emailTrabalhador || !nomeEmpresa || !mensagemProposta) {
+    return res.status(400).json({ erro: 'Dados da solicitação incompletos.' });
+  }
+
+  // Registra a chamada na memória
+  const novaSolicitacao = {
+    id: solicitacoes.length + 1,
+    emailTrabalhador,
+    nomeEmpresa,
+    mensagemProposta,
+    telefoneEmpresa,
+    data: new Date()
+  };
+  solicitacoes.push(novaSolicitacao);
+
+  // Monta o e-mail de notificação
+  const mailOptions = {
+    from: 'Plataforma JR Serviços <seu-email@gmail.com>',
+    to: emailTrabalhador,
+    subject: `🚨 Nova Oportunidade da empresa ${nomeEmpresa} - JR Serviços`,
+    html: `
+      <h2>Olá! Você recebeu uma proposta de trabalho!</h2>
+      <p>A empresa <strong>${nomeEmpresa}</strong> viu seu perfil na Plataforma JR Serviços e deseja contratar seus serviços.</p>
+      <p><strong>Mensagem / Proposta:</strong> ${mensagemProposta}</p>
+      <p><strong>Contato da Empresa:</strong> ${telefoneEmpresa}</p>
+      <br>
+      <p>Acesse a plataforma para entrar em contato diretamente!</p>
+    `
+  };
+
+  try {
+    // Tenta enviar o e-mail (se o Nodemailer estiver configurado)
+    await transporter.sendMail(mailOptions);
+    return res.json({
+      sucesso: true,
+      mensagem: 'Proposta registrada e e-mail de notificação enviado ao trabalhador!'
+    });
+  } catch (err) {
+    // Se o e-mail não estiver configurado no servidor, registra apenas no sistema
+    return res.json({
+      sucesso: true,
+      mensagem: 'Proposta salva no sistema com sucesso! (Aviso: configure o serviço de e-mail para envios automáticos).'
+    });
+  }
+});
+
+// Inicialização do Servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`>>> Servidor JR Serviços rodando na porta: ${PORT}`);
