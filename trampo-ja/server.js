@@ -24,11 +24,12 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS || 'sua-senha-de-aplicativo'
   }
 });
-
+   
 // ==========================================
 // 1. ROTAS DAS PÁGINAS (HTML)
 // ==========================================
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'cadastro.html')));
+app.get('/cadastro', (req, res) => res.sendFile(path.join(__dirname, 'public', 'cadastro.html'))); // <--- ADICIONE ESTA LINHA
 app.get('/trabalhador', (req, res) => res.sendFile(path.join(__dirname, 'public', 'trabalhador.html')));
 app.get('/contratante', (req, res) => res.sendFile(path.join(__dirname, 'public', 'contratante.html')));
 
