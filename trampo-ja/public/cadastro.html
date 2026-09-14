@@ -3,160 +3,180 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cadastro - JR Serviços / TrampoJá</title>
+  <title>Cadastro - Plataforma JR Serviços</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    .aba-conteudo { display: none; }
+    .aba-conteudo.ativa { display: block; }
+  </style>
 </head>
 <body class="bg-dark text-light">
 
   <div class="container py-5">
-    <h2 class="text-center text-danger mb-5">Plataforma JR Serviços - Cadastro Geral</h2>
+    <h2 class="text-center text-danger mb-4">Plataforma JR Serviços - Cadastro Geral</h2>
 
-    <div class="row g-4">
-      
-      <!-- 1. FORMULÁRIO DO PROFISSIONAL (PF) -->
-      <div class="col-lg-6">
-        <div class="card bg-secondary text-white p-4 shadow h-100 border-danger">
-          <h3 class="text-warning mb-3">👤 1. Profissional / Trabalhador (PF)</h3>
-          <p class="text-light small">Cadastre seus serviços para ser encontrado por clientes e empresas.</p>
-          <hr class="border-light">
+    <!-- BOTOES DE SELEÇÃO -->
+    <div class="d-flex justify-content-center gap-2 mb-4">
+      <button type="button" id="btnAbaPF" class="btn btn-danger btn-lg active" onclick="mostrarAba('pf')">
+        👤 Sou Profissional (PF)
+      </button>
+      <button type="button" id="btnAbaPJ" class="btn btn-outline-warning btn-lg" onclick="mostrarAba('pj')">
+        🏢 Sou Empresa / Contratante (PJ)
+      </button>
+    </div>
 
-          <form id="formCadastroPF" action="javascript:void(0);">
-            <div class="row g-3">
-              <div class="col-12">
-                <label class="form-label">Nome Completo</label>
-                <input type="text" class="form-control" name="nome" required placeholder="Ex: João da Silva">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">CPF</label>
-                <input type="text" class="form-control" name="cpf" required placeholder="000.000.000-00">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">WhatsApp / Telefone</label>
-                <input type="tel" class="form-control" name="telefone" required placeholder="(81) 99999-9999">
-              </div>
-              <div class="col-12">
-                <label class="form-label">E-mail</label>
-                <input type="email" class="form-control" name="email" required placeholder="joao@email.com">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Profissão / Especialidade</label>
-                <input type="text" class="form-control" name="especialidade" required placeholder="Ex: Eletricista">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Valor/Hora (R$)</label>
-                <input type="number" step="0.01" class="form-control" name="valorHora" placeholder="50.00">
-              </div>
-              <div class="col-12">
-                <label class="form-label">Cidade / Bairro</label>
-                <input type="text" class="form-control" name="localizacao" required placeholder="Ex: Recife - PE">
-              </div>
-              <div class="col-12">
-                <label class="form-label">Descrição dos Serviços</label>
-                <textarea class="form-control" name="descricao" rows="3" placeholder="Descreva sua experiência..."></textarea>
-              </div>
-            </div>
+    <div class="row justify-content-center">
+      <div class="col-lg-7">
 
-            <button type="submit" class="btn btn-danger w-100 mt-4">Cadastrar Profissional</button>
-          </form>
+        <!-- 1. FORMULÁRIO DO PROFISSIONAL (PF) -->
+        <div id="conteudoPF" class="aba-conteudo ativa">
+          <div class="card bg-secondary text-white p-4 shadow border-danger">
+            <h3 class="text-warning mb-2">👤 1. Profissional / Trabalhador (PF)</h3>
+            <p class="text-light small mb-3">Cadastre seus serviços para ser encontrado por clientes e empresas.</p>
+            <hr class="border-light mt-0 mb-4">
+
+            <form id="formCadastroPF" action="javascript:void(0);">
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label">Nome Completo</label>
+                  <input type="text" class="form-control" name="nome" required placeholder="Ex: João da Silva">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">CPF</label>
+                  <input type="text" class="form-control" name="cpf" required placeholder="000.000.000-00">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">WhatsApp / Telefone</label>
+                  <input type="tel" class="form-control" name="telefone" required placeholder="(81) 99999-9999">
+                </div>
+                <div class="col-12">
+                  <label class="form-label">E-mail</label>
+                  <input type="email" class="form-control" name="email" required placeholder="joao@email.com">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Profissão / Especialidade</label>
+                  <input type="text" class="form-control" name="especialidade" required placeholder="Ex: Eletricista">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Valor/Hora (R$)</label>
+                  <input type="number" step="0.01" class="form-control" name="valorHora" placeholder="50.00">
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Cidade / Bairro</label>
+                  <input type="text" class="form-control" name="localizacao" required placeholder="Ex: Recife - PE">
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Descrição dos Serviços</label>
+                  <textarea class="form-control" name="descricao" rows="3" placeholder="Descreva sua experiência..."></textarea>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-danger w-100 mt-4">Cadastrar Profissional</button>
+            </form>
+          </div>
         </div>
-      </div>
 
-      <!-- 2. FORMULÁRIO DA EMPRESA / CONTRATANTE (PJ) -->
-      <div class="col-lg-6">
-        <div class="card bg-secondary text-white p-4 shadow h-100 border-warning">
-          <h3 class="text-warning mb-3">🏢 2. Empresa / Contratante (PJ)</h3>
-          <p class="text-light small">Cadastre sua empresa para contratar profissionais ou divulgar vagas.</p>
-          <hr class="border-light">
+        <!-- 2. FORMULÁRIO DA EMPRESA (PJ) -->
+        <div id="conteudoPJ" class="aba-conteudo">
+          <div class="card bg-secondary text-white p-4 shadow border-warning">
+            <h3 class="text-warning mb-2">🏢 2. Empresa / Contratante (PJ)</h3>
+            <p class="text-light small mb-3">Cadastre sua empresa para contratar profissionais ou divulgar vagas.</p>
+            <hr class="border-light mt-0 mb-4">
 
-          <form id="formCadastroPJ" action="javascript:void(0);">
-            <div class="row g-3">
-              <div class="col-12">
-                <label class="form-label">Razão Social / Nome Fantasia</label>
-                <input type="text" class="form-control" name="nomeEmpresa" required placeholder="Ex: Tech Serviços LTDA">
+            <form id="formCadastroPJ" action="javascript:void(0);">
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label">Razão Social / Nome Fantasia</label>
+                  <input type="text" class="form-control" name="nomeEmpresa" required placeholder="Ex: Tech Serviços LTDA">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">CNPJ</label>
+                  <input type="text" class="form-control" name="cnpj" required placeholder="00.000.000/0001-00">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Telefone Comercial</label>
+                  <input type="tel" class="form-control" name="telefone" required placeholder="(81) 3333-4444">
+                </div>
+                <div class="col-12">
+                  <label class="form-label">E-mail Corporativo</label>
+                  <input type="email" class="form-control" name="email" required placeholder="contato@empresa.com">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Responsável / Contato</label>
+                  <input type="text" class="form-control" name="responsavel" required placeholder="Ex: Maria Ramos">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Ramo de Atuação</label>
+                  <input type="text" class="form-control" name="ramo" required placeholder="Ex: Construção Civil">
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Endereço da Sede</label>
+                  <input type="text" class="form-control" name="endereco" required placeholder="Rua, Bairro, Cidade - Estado">
+                </div>
               </div>
-              <div class="col-md-6">
-                <label class="form-label">CNPJ</label>
-                <input type="text" class="form-control" name="cnpj" required placeholder="00.000.000/0001-00">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Telefone Comercial</label>
-                <input type="tel" class="form-control" name="telefone" required placeholder="(81) 3333-4444">
-              </div>
-              <div class="col-12">
-                <label class="form-label">E-mail Corporativo</label>
-                <input type="email" class="form-control" name="email" required placeholder="contato@empresa.com">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Responsável / Contato</label>
-                <input type="text" class="form-control" name="responsavel" required placeholder="Ex: Maria Ramos">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Ramo de Atuação</label>
-                <input type="text" class="form-control" name="ramo" required placeholder="Ex: Construção Civil">
-              </div>
-              <div class="col-12">
-                <label class="form-label">Endereço da Sede</label>
-                <input type="text" class="form-control" name="endereco" required placeholder="Rua, Bairro, Cidade - Estado">
-              </div>
-            </div>
 
-            <button type="submit" class="btn btn-warning text-dark font-weight-bold w-100 mt-4">Cadastrar Empresa</button>
-          </form>
+              <button type="submit" class="btn btn-warning text-dark font-weight-bold w-100 mt-4">Cadastrar Empresa</button>
+            </form>
+          </div>
         </div>
-      </div>
 
+      </div>
     </div>
   </div>
 
   <script>
-    // Envio do Profissional (PF)
+    // Alternar entre visível / oculto sem depender de bibliotecas externas
+    function mostrarAba(tipo) {
+      const pfConteudo = document.getElementById('conteudoPF');
+      const pjConteudo = document.getElementById('conteudoPJ');
+      const btnPF = document.getElementById('btnAbaPF');
+      const btnPJ = document.getElementById('btnAbaPJ');
+
+      if (tipo === 'pf') {
+        pfConteudo.classList.add('ativa');
+        pjConteudo.classList.remove('ativa');
+        btnPF.className = 'btn btn-danger btn-lg active';
+        btnPJ.className = 'btn btn-outline-warning btn-lg';
+      } else {
+        pjConteudo.classList.add('ativa');
+        pfConteudo.classList.remove('ativa');
+        btnPJ.className = 'btn btn-warning btn-lg text-dark active';
+        btnPF.className = 'btn btn-outline-danger btn-lg';
+      }
+    }
+
+    // Envio PF
     document.getElementById('formCadastroPF').addEventListener('submit', async function(e) {
       e.preventDefault();
-      const formData = new FormData(this);
-      const dados = Object.fromEntries(formData.entries());
-
+      const dados = Object.fromEntries(new FormData(this).entries());
       try {
-        const resposta = await fetch('/api/cadastrar-trabalhador', {
+        const resp = await fetch('/api/cadastrar-trabalhador', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(dados)
         });
-
-        const resultado = await resposta.json();
-
-        if (resposta.ok) {
-          alert('✅ ' + resultado.mensagem);
-          this.reset();
-        } else {
-          alert('⚠️ Erro: ' + resultado.erro);
-        }
+        const res = await resp.json();
+        alert(resp.ok ? '✅ ' + res.mensagem : '⚠️ ' + res.erro);
+        if (resp.ok) this.reset();
       } catch (err) {
         alert('❌ Erro de conexão com o servidor.');
       }
     });
 
-    // Envio da Empresa (PJ)
+    // Envio PJ
     document.getElementById('formCadastroPJ').addEventListener('submit', async function(e) {
       e.preventDefault();
-      const formData = new FormData(this);
-      const dados = Object.fromEntries(formData.entries());
-
+      const dados = Object.fromEntries(new FormData(this).entries());
       try {
-        const resposta = await fetch('/api/cadastrar-empresa', {
+        const resp = await fetch('/api/cadastrar-empresa', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(dados)
         });
-
-        const resultado = await resposta.json();
-
-        if (resposta.ok) {
-          alert('✅ ' + resultado.mensagem);
-          this.reset();
-        } else {
-          alert('⚠️ Erro: ' + resultado.erro);
-        }
+        const res = await resp.json();
+        alert(resp.ok ? '✅ ' + res.mensagem : '⚠️ ' + res.erro);
+        if (resp.ok) this.reset();
       } catch (err) {
         alert('❌ Erro de conexão com o servidor.');
       }
