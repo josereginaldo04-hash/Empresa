@@ -1,65 +1,97 @@
 const express = require('express');
-const path = require('path');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
-app.use(express.json());
-app.use(cors());
 
-// Servir arquivos estáticos (CSS e JS do front)
+// Middlewares
+app.use(cors());
+app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// "Banco de Dados" em memória para testes
-const trabalhadores = [
-  { id: 1, nome: "Carlos Eduardo", funcao: "Auxiliar de Logistica", cidade: "Recife - PE", avaliacao: "4.9 ★", online: true },
-  { id: 2, nome: "Mariana Costa", funcao: "Suporte Tecnico", cidade: "Olinda - PE", avaliacao: "5.0 ★", online: true },
-  { id: 3, nome: "Lucas Andrade", funcao: "Atendimento ao Cliente", cidade: "Jaboatão - PE", avaliacao: "4.8 ★", online: false }
-];
+// "Bancos de dados" temporários em memória
+const trabalhadores = [];
+const empresas = [];
 
-// --- ROTAS DAS PÁGINAS (HTML) ---
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
-app.get('/cadastro', (req, res) => res.sendFile(path.join(__dirname, 'public', 'cadastro.html')));
-app.get('/contratante', (req, res) => res.sendFile(path.join(__dirname, 'public', 'contratante.html')));
-app.get('/trabalhador', (req, res) => res.sendFile(path.join(__dirname, 'public', 'trabalhador.html')));
+// ================= ROTAS DE CADASTRO =================
 
-// --- ROTAS DA API (BACK-END) ---
-app.get('/api/trabalhadores', (req, res) => {
-  const { funcao } = req.query;
-  let lista = trabalhadores.filter(t => t.online);
-  if (funcao && funcao !== 'todas') {
-    lista = lista.filter(t => t.funcao.toLowerCase() === funcao.toLowerCase());
+// 1. Cadastrar Trabalhador (Pessoa Física)
+app.post('/api/cadastrar-trabalhador', (req, res) => {
+  const { nome, cpf, email, telefone, especialidade, valorHora, localizacao, descricao } = req.body;
+
+  if (!nome || !cpf || !email || !telefone || !especialidade) {
+    return res.status(400).json({ erro: 'Por favor, preencha todos os campos obrigatórios.' });
   }
-  res.json(lista);
-});
 
-app.post('/api/cadastrar', (req, res) => {
-  const { nome, funcao, cidade } = req.body;
-  if (!nome || !funcao) {
-    return res.status(400).json({ erro: "Campos obrigatórios ausentes." });
-  }
-  const novo = {
+  const novoTrabalhador = {
     id: trabalhadores.length + 1,
+    tipo: 'PF',
     nome,
-    funcao,
-    cidade: cidade || "Recife - PE",
-    avaliacao: "5.0 ★ (Novo)",
-    online: true
+    cpf,
+    email,
+    telefone,
+    especialidade,
+    valorHora: valorHora ? parseFloat(valorHora) : 0,
+    localizacao,
+    descricao,
+    dataCadastro: new Date()
   };
-  trabalhadores.push(novo);
-  res.status(201).json({ mensagem: "Cadastro realizado com sucesso!", trabalhador: novo });
+
+  trabalhadores.push(novoTrabalhador);
+  console.log('Novo Profissional Cadastrado:', novoTrabalhador);
+
+  return res.status(201).json({
+    sucesso: true,
+    mensagem: 'Profissional cadastrado com sucesso!',
+    dados: novoTrabalhador
+  });
 });
 
-app.post('/api/trabalhador/status', (req, res) => {
-  const { id, online } = req.body;
-  const t = trabalhadores.find(item => item.id === Number(id));
-  if (t) {
-    t.online = online;
-    return res.json({ mensagem: `Status atualizado para ${online ? 'Online' : 'Offline'}`, trabalhador: t });
+// 2. Cadastrar Empresa (Pessoa Jurídica)
+app.post('/api/cadastrar-empresa', (req, res) => {
+  const { nomeEmpresa, cnpj, email, telefone, responsavel, ramo, endereco } = req.body;
+
+  if (!nomeEmpresa || !cnpj || !email || !telefone || !responsavel || !ramo) {
+    return res.status(400).json({ erro: 'Por favor, preencha todos os campos obrigatórios da empresa.' });
   }
-  res.status(404).json({ erro: "Trabalhador não encontrado." });
+
+  novaEmpresa = {
+    id: empresas.length + 1,
+    tipo: 'PJ',
+    nomeEmpresa,
+    cnpj,
+    email,
+    telefone,
+    responsavel,
+    ramo,
+    endereco,
+    dataCadastro: new Date()
+  };
+
+  empresas.push(novaEmpresa);
+  console.log('Nova Empresa Cadastrada:', novaEmpresa);
+
+  return res.status(201).json({
+    sucesso: true,
+    mensagem: 'Empresa cadastrada com sucesso!',
+    dados: novaEmpresa
+  });
 });
 
-const PORT = 3000;
+// ================= ROTAS DE CONSULTA =================
+
+// Listar todos os trabalhadores
+app.get('/api/trabalhadores', (req, res) => {
+  res.json(trabalhadores);
+});
+
+// Listar todas as empresas
+app.get('/api/empresas', (req, res) => {
+  res.json(empresas);
+});
+
+// Porta dinâmica para o Render
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`>>> Servidor Web Amplo rodando em: http://localhost:${PORT}`);
+  console.log(`>>> Servidor JR Serviços rodando na porta: ${PORT}`);
 });

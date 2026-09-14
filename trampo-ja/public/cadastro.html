@@ -3,83 +3,179 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cadastro em Etapas - TrampoJá</title>
-  <link rel="stylesheet" href="/css/style.css">
+  <title>Cadastro - JR Serviços / TrampoJá</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="bg-dark text-light">
 
-  <header class="navbar">
-    <a href="/" class="brand">TrampoJá</a>
-    <nav class="nav-links">
-      <a href="/">Início</a>
-      <a href="/cadastro" class="active">Cadastrar-se</a>
-      <a href="/contratante">Painel Contratante</a>
-      <a href="/trabalhador">Painel Trabalhador</a>
-    </nav>
-  </header>
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        
+        <h2 class="text-center text-danger mb-4">Criar Nova Conta no JR Serviços</h2>
 
-  <main class="main-container">
-    <div class="step-box">
-      <h1 class="page-title">Cadastro de Profissional</h1>
-      <p class="page-subtitle" id="stepIndicator">Etapa 1 de 2: Dados Pessoais</p>
+        <!-- Abas para Escolha de Perfil -->
+        <ul class="nav nav-pills nav-justified mb-4" id="pills-tab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-item nav-link active btn-outline-danger" id="tab-pf" data-bs-toggle="pill" data-bs-target="#perfil-pf" type="button" role="tab">Sou Profissional (PF)</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-item nav-link btn-outline-danger" id="tab-pj" data-bs-toggle="pill" data-bs-target="#perfil-pj" type="button" role="tab">Sou Empresa (PJ)</button>
+          </li>
+        </ul>
 
-      <form id="multiStepForm">
-        <div class="form-step active" id="step1">
-          <div class="form-group">
-            <label>Nome Completo</label>
-            <input type="text" id="nome" placeholder="Digite seu nome" required>
+        <div class="tab-content card bg-secondary text-white p-4 shadow" id="pills-tabContent">
+          
+          <!-- FORMULÁRIO PESSOA FÍSICA -->
+          <div class="tab-pane fade show active" id="perfil-pf" role="tabpanel">
+            <form id="formCadastroPF">
+              <input type="hidden" name="tipo" value="trabalhador">
+              
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Nome Completo</label>
+                  <input type="text" class="form-control" name="nome" required placeholder="Ex: João da Silva">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">CPF</label>
+                  <input type="text" class="form-control" name="cpf" required placeholder="000.000.000-00">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">E-mail</label>
+                  <input type="email" class="form-control" name="email" required placeholder="joao@email.com">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">WhatsApp / Telefone</label>
+                  <input type="tel" class="form-control" name="telefone" required placeholder="(81) 99999-9999">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Profissão / Especialidade</label>
+                  <input type="text" class="form-control" name="especialidade" required placeholder="Ex: Eletricista, Desenvolvedor">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Valor Médio por Hora/Serviço (R$)</label>
+                  <input type="number" step="0.01" class="form-control" name="valorHora" placeholder="50.00">
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Cidade / Bairro de Atendimento</label>
+                  <input type="text" class="form-control" name="localizacao" required placeholder="Ex: Recife - PE (Boa Viagem)">
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Descrição dos Serviços Prestados</label>
+                  <textarea class="form-control" name="descricao" rows="3" placeholder="Descreva suas habilidades e experiência..."></textarea>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-danger w-100 mt-4">Cadastrar Profissional</button>
+            </form>
           </div>
-          <div class="form-group">
-            <label>Cidade / Estado</label>
-            <input type="text" id="cidade" value="Recife - PE" required>
+
+          <!-- FORMULÁRIO PESSOA JURÍDICA (EMPRESA) -->
+          <div class="tab-pane fade" id="perfil-pj" role="tabpanel">
+            <form id="formCadastroPJ">
+              <input type="hidden" name="tipo" value="empresa">
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Razão Social / Nome Fantasia</label>
+                  <input type="text" class="form-control" name="nomeEmpresa" required placeholder="Ex: Tech Serviços LTDA">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">CNPJ</label>
+                  <input type="text" class="form-control" name="cnpj" required placeholder="00.000.000/0001-00">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">E-mail Corporativo</label>
+                  <input type="email" class="form-control" name="email" required placeholder="contato@empresa.com">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Telefone / WhatsApp Comercial</label>
+                  <input type="tel" class="form-control" name="telefone" required placeholder="(81) 3333-4444">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Nome do Responsável / Contato</label>
+                  <input type="text" class="form-control" name="responsavel" required placeholder="Ex: Maria Ramos">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Ramo de Atuação</label>
+                  <input type="text" class="form-control" name="ramo" required placeholder="Ex: Construção Civil, Tecnologia">
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Endereço Completo da Sede</label>
+                  <input type="text" class="form-control" name="endereco" required placeholder="Rua, Número, Bairro, Cidade - Estado">
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-danger w-100 mt-4">Cadastrar Empresa</button>
+            </form>
           </div>
-          <button type="button" class="btn-primary" onclick="nextStep(2)">Próxima Etapa →</button>
+
         </div>
 
-        <div class="form-step" id="step2">
-          <div class="form-group">
-            <label>Qual a sua Função Principal?</label>
-            <select id="funcao" required>
-              <option value="Auxiliar de Logistica">Auxiliar de Logistica</option>
-              <option value="Suporte Tecnico">Suporte Tecnico</option>
-              <option value="Atendimento ao Cliente">Atendimento ao Cliente</option>
-            </select>
-          </div>
-          <div style="margin-top: 20px;">
-            <button type="button" class="btn-secondary" onclick="nextStep(1)">← Voltar</button>
-            <button type="submit" class="btn-primary">Finalizar Cadastro</button>
-          </div>
-        </div>
-      </form>
+      </div>
     </div>
-  </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/bootstrap.bundle.min.js"></script>
 
   <script>
-    function nextStep(step) {
-      document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
-      document.getElementById(`step${step}`).classList.add('active');
-      document.getElementById('stepIndicator').textContent = `Etapa ${step} de 2: ${step === 1 ? 'Dados Pessoais' : 'Perfil Profissional'}`;
-    }
-
-    document.getElementById('multiStepForm').addEventListener('submit', async (e) => {
+    // Envio do formulário Pessoa Física
+    document.getElementById('formCadastroPF').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const payload = {
-        nome: document.getElementById('nome').value,
-        cidade: document.getElementById('cidade').value,
-        funcao: document.getElementById('funcao').value
-      };
+      
+      const formData = new FormData(e.target);
+      const dados = Object.fromEntries(formData.entries());
 
-      const res = await fetch('/api/cadastrar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      try {
+        const resposta = await fetch('/api/cadastrar-trabalhador', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dados)
+        });
 
-      const data = await res.json();
-      alert(data.mensagem);
-      window.location.href = '/contratante';
+        const resultado = await resposta.json();
+
+        if (resposta.ok) {
+          alert('✅ ' + resultado.mensagem);
+          e.target.reset();
+        } else {
+          alert('⚠️ Error: ' + resultado.erro);
+        }
+      } catch (err) {
+        alert('❌ Erro de conexão com o servidor.');
+        console.error(err);
+      }
+    });
+
+    // Envio do formulário Pessoa Jurídica (Empresa)
+    document.getElementById('formCadastroPJ').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(e.target);
+      const dados = Object.fromEntries(formData.entries());
+
+      try {
+        const resposta = await fetch('/api/cadastrar-empresa', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dados)
+        });
+
+        const resultado = await resposta.json();
+
+        if (resposta.ok) {
+          alert('✅ ' + resultado.mensagem);
+          e.target.reset();
+        } else {
+          alert('⚠️ Erro: ' + resultado.erro);
+        }
+      } catch (err) {
+        alert('❌ Erro de conexão com o servidor.');
+        console.error(err);
+      }
     });
   </script>
-
 </body>
 </html>
