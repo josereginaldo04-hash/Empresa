@@ -7,20 +7,34 @@ const app = express();
 // Middlewares
 app.use(cors());
 app.use(express.json());
+
+// Servir arquivos estáticos da pasta public (para arquivos .css, .js, .html)
 app.use(express.static(path.join(__dirname, 'public')));
 
 // "Bancos de dados" temporários em memória
 const trabalhadores = [];
 const empresas = [];
 
-// ================= ROTAS DE CADASTRO =================
+// ================= ROTAS DE PÁGINAS (FRONTEND) =================
 
-// 1. Cadastrar Trabalhador (Pessoa Física)
+// Redireciona a raiz do site (/) para o formulário de cadastro
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'cadastro.html'));
+});
+
+// Permite acessar /cadastro sem precisar escrever .html na URL
+app.get('/cadastro', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'cadastro.html'));
+});
+
+// ================= ROTAS DE API (BACKEND) =================
+
+// Cadastrar Trabalhador (Pessoa Física - PF)
 app.post('/api/cadastrar-trabalhador', (req, res) => {
   const { nome, cpf, email, telefone, especialidade, valorHora, localizacao, descricao } = req.body;
 
   if (!nome || !cpf || !email || !telefone || !especialidade) {
-    return res.status(400).json({ erro: 'Por favor, preencha todos os campos obrigatórios.' });
+    return res.status(400).json({ erro: 'Por favor, preencha todos os campos obrigatórios do trabalhador.' });
   }
 
   const novoTrabalhador = {
@@ -47,7 +61,7 @@ app.post('/api/cadastrar-trabalhador', (req, res) => {
   });
 });
 
-// 2. Cadastrar Empresa (Pessoa Jurídica)
+// Cadastrar Empresa (Pessoa Jurídica - PJ)
 app.post('/api/cadastrar-empresa', (req, res) => {
   const { nomeEmpresa, cnpj, email, telefone, responsavel, ramo, endereco } = req.body;
 
@@ -55,7 +69,7 @@ app.post('/api/cadastrar-empresa', (req, res) => {
     return res.status(400).json({ erro: 'Por favor, preencha todos os campos obrigatórios da empresa.' });
   }
 
-  novaEmpresa = {
+  const novaEmpresa = {
     id: empresas.length + 1,
     tipo: 'PJ',
     nomeEmpresa,
@@ -78,17 +92,9 @@ app.post('/api/cadastrar-empresa', (req, res) => {
   });
 });
 
-// ================= ROTAS DE CONSULTA =================
-
-// Listar todos os trabalhadores
-app.get('/api/trabalhadores', (req, res) => {
-  res.json(trabalhadores);
-});
-
-// Listar todas as empresas
-app.get('/api/empresas', (req, res) => {
-  res.json(empresas);
-});
+// Rotas de consulta de dados
+app.get('/api/trabalhadores', (req, res) => res.json(trabalhadores));
+app.get('/api/empresas', (req, res) => res.json(empresas));
 
 // Porta dinâmica para o Render
 const PORT = process.env.PORT || 3000;
