@@ -110,20 +110,23 @@ function filtrarProfissionais() {
   renderizarProfissionais(filtrados);
 }
 
-// Gera o link da API oficial do WhatsApp (Funciona no celular abrindo o App e no PC abrindo a Web)
+// Gera o link universal wa.me que força a mensagem a aparecer no aplicativo do celular
 function gerarLinkWhatsapp(telefone, nome, especialidade) {
+  // Limpa caracteres especiais mantendo só os números
   let numLimpo = (telefone || '').replace(/\D/g, '');
 
   if (!numLimpo) return '#';
 
+  // Garante o DDD com código do país (55 - Brasil)
   if (!numLimpo.startsWith('55')) {
     numLimpo = '55' + numLimpo;
   }
 
+  // Texto formatado
   const mensagem = `Olá ${nome}! Vi seu perfil no CapacitaLocal / JR Serviços como ${especialidade} e gostaria de solicitar um orçamento.`;
 
-  // Utiliza a API universal do WhatsApp que ativa o App no celular sem passar por SMS
-  return `https://api.whatsapp.com/send?phone=${numLimpo}&text=${encodeURIComponent(mensagem)}`;
+  // Retorna a URL padrão oficial que passa o parâmetro text corretamente no App
+  return `https://wa.me/${numLimpo}?text=${encodeURIComponent(mensagem)}`;
 }
 
 // Retorna as iniciais do nome para o avatar
