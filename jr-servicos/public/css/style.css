@@ -1,0 +1,42 @@
+:root {
+  --bg: #0f0f12;
+  --card-bg: #18181c;
+  --primary: #e50914;
+  --primary-hover: #b20710;
+  --text: #ffffff;
+  --subtext: #a0a0a0;
+  --border: #2a2a30;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(229, 9, 20, 0.2) !important;
+}
+
+.form-control, .form-select {
+  background-color: #222226 !important;
+  border-color: var(--border) !important;
+  color: #fff !important;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 0.25rem rgba(229, 9, 20, 0.25) !important;
+}
