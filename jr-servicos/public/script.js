@@ -1,156 +1,135 @@
-// Usando caminho relativo, o front-end faz as chamadas para a mesma origem/porta do servidor
-const API_BASE_URL = '';
-
-let todosTrabalhadores = [];
-
-async function carregarPainel() {
-  const containerTrab = document.getElementById('listaTrabalhadores');
-  if (!containerTrab) return;
-
-  try {
-    const resTrab = await fetch(`${API_BASE_URL}/api/trabalhadores`);
-    todosTrabalhadores = await resTrab.json();
-    renderizarTrabalhadores(todosTrabalhadores);
-
-    const resEmp = await fetch(`${API_BASE_URL}/api/empresas`);
-    const empresas = await resEmp.json();
-    renderizarEmpresas(empresas);
-  } catch (err) {
-    console.error('Erro ao carregar os dados:', err);
-  }
-}
-
-function renderizarTrabalhadores(lista) {
-  const containerTrab = document.getElementById('listaTrabalhadores');
-  const badgeTrab = document.getElementById('totalTrabalhadores');
-
-  if (badgeTrab) badgeTrab.innerText = lista.length + ' online';
-
-  if (!lista || lista.length === 0) {
-    containerTrab.innerHTML = '<div class="col-12 text-muted text-center">Nenhum profissional encontrado.</div>';
-    return;
-  }
-
-  let htmlTrab = '';
-  lista.forEach(t => {
-    const foneLimpo = (t.telefone || '').replace(/\D/g, '');
-    const msgZap = encodeURIComponent('Olá ' + (t.nome || '') + '! Vi seu perfil na JR Serviços como ' + (t.especialidade || '') + ' e gostaria de contratar.');
-
-    htmlTrab += `
-      <div class="col-md-6 col-lg-4">
-        <div class="card bg-secondary text-white shadow border-danger h-100">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-              <h5 class="card-title text-warning mb-0">${t.nome || ''}</h5>
-              <span class="badge bg-success">🟢 Online</span>
-            </div>
-            <h6 class="text-info">${t.especialidade || ''}</h6>
-            <p class="card-text small text-light mb-2">${t.descricao || 'Sem descrição informada.'}</p>
-            <ul class="list-unstyled small text-light mb-3">
-              <li><strong>💰 Valor/Hora:</strong> R$ ${t.valorHora ? Number(t.valorHora).toFixed(2) : 'A combinar'}</li>
-              <li><strong>📍 Localização:</strong> ${t.localizacao || 'Não informada'}</li>
-              <li><strong>📱 Tel:</strong> ${t.telefone || ''}</li>
-            </ul>
-            <a href="https://wa.me/55${foneLimpo}?text=${msgZap}" target="_blank" class="btn btn-success w-100">
-              💬 Chamar no WhatsApp
-            </a>
-          </div>
-        </div>
-      </div>
-    `;
-  });
-  containerTrab.innerHTML = htmlTrab;
-}
-
-function renderizarEmpresas(empresas) {
-  const containerEmp = document.getElementById('listaEmpresas');
-  const badgeEmp = document.getElementById('totalEmpresas');
-
-  if (badgeEmp) badgeEmp.innerText = empresas.length + ' cadastradas';
-
-  if (!empresas || empresas.length === 0) {
-    containerEmp.innerHTML = '<div class="col-12 text-muted text-center">Nenhuma empresa cadastrada no momento.</div>';
-    return;
-  }
-
-  let htmlEmp = '';
-  empresas.forEach(e => {
-    htmlEmp += `
-      <div class="col-md-6 col-lg-4">
-        <div class="card bg-secondary text-white shadow border-warning h-100">
-          <div class="card-body">
-            <h5 class="card-title text-warning mb-2">${e.nomeEmpresa || ''}</h5>
-            <h6 class="text-info">${e.ramo || ''}</h6>
-            <ul class="list-unstyled small text-light mt-3 mb-3">
-              <li><strong>👤 Responsável:</strong> ${e.responsavel || ''}</li>
-              <li><strong>📍 Endereço:</strong> ${e.endereco || ''}</li>
-              <li><strong>📱 Tel:</strong> ${e.telefone || ''}</li>
-            </ul>
-            <a href="mailto:${e.email || ''}" class="btn btn-warning text-dark w-100 fw-bold">
-              ✉️ Contatar Empresa
-            </a>
-          </div>
-        </div>
-      </div>
-    `;
-  });
-  containerEmp.innerHTML = htmlEmp;
-}
-
 document.addEventListener('DOMContentLoaded', () => {
-  carregarPainel();
+  carregarProfissionais();
 
-  // ENVIO DO FORMULÁRIO PF (Trabalhador)
-  const formPF = document.getElementById('formCadastroPF');
-  if (formPF) {
-    formPF.addEventListener('submit', async function (e) {
-      e.preventDefault();
-      const dados = Object.fromEntries(new FormData(this).entries());
-
-      try {
-        const resp = await fetch('/api/cadastrar-trabalhador', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(dados)
-        });
-        const res = await resp.json();
-
-        if (resp.ok) {
-          alert('✅ ' + res.mensagem);
-          window.location.href = 'index.html?cadastrado=true';
-        } else {
-          alert('⚠️ Erro: ' + res.erro);
-        }
-      } catch (err) {
-        alert('❌ Erro de conexão com o servidor. Verifique se a aplicação está rodando!');
-      }
-    });
-  }
-
-  // ENVIO DO FORMULÁRIO PJ (Empresa)
-  const formPJ = document.getElementById('formCadastroPJ');
-  if (formPJ) {
-    formPJ.addEventListener('submit', async function (e) {
-      e.preventDefault();
-      const dados = Object.fromEntries(new FormData(this).entries());
-
-      try {
-        const resp = await fetch('/api/cadastrar-empresa', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(dados)
-        });
-        const res = await resp.json();
-
-        if (resp.ok) {
-          alert('✅ ' + res.mensagem);
-          window.location.href = 'index.html?cadastrado=true';
-        } else {
-          alert('⚠️ Erro: ' + res.erro);
-        }
-      } catch (err) {
-        alert('❌ Erro de conexão com o servidor. Verifique se a aplicação está rodando!');
-      }
-    });
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', filtrarProfissionais);
   }
 });
+
+let profissionaisData = [];
+
+// Busca a lista de profissionais no backend
+async function carregarProfissionais() {
+  const container = document.getElementById('profissionaisContainer');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="col-12 text-center my-5">
+      <div class="spinner-border text-danger" role="status">
+        <span class="visually-hidden">Carregando...</span>
+      </div>
+      <p class="mt-2 text-muted">Carregando profissionais...</p>
+    </div>
+  `;
+
+  try {
+    const response = await fetch('/api/profissionais');
+    if (!response.ok) throw new Error('Erro ao buscar dados do servidor');
+
+    profissionaisData = await response.json();
+    renderizarProfissionais(profissionaisData);
+  } catch (error) {
+    console.error('Erro:', error);
+    container.innerHTML = `
+      <div class="col-12">
+        <div class="alert alert-danger text-center" role="alert">
+          Não foi possível carregar a lista de profissionais. Verifique a conexão com o servidor.
+        </div>
+      </div>
+    `;
+  }
+}
+
+// Renderiza os cartões dos profissionais no HTML
+function renderizarProfissionais(lista) {
+  const container = document.getElementById('profissionaisContainer');
+  if (!container) return;
+
+  if (lista.length === 0) {
+    container.innerHTML = `
+      <div class="col-12 text-center my-5">
+        <p class="text-muted fs-5">Nenhum profissional encontrado.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = lista.map(prof => {
+    const linkWa = gerarLinkWhatsapp(prof.telefone, prof.nome, prof.especialidade);
+
+    return `
+      <div class="col-12 col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 shadow-sm border-0 bg-dark text-white card-profissional">
+          <div class="card-body d-flex flex-column">
+            <div class="d-flex align-items-center mb-3">
+              <div class="avatar-circle bg-danger text-white fw-bold me-3">
+                ${getIniciais(prof.nome)}
+              </div>
+              <div>
+                <h5 class="card-title mb-0 text-white">${prof.nome}</h5>
+                <span class="badge bg-outline-danger text-danger border border-danger mt-1">
+                  ${prof.especialidade}
+                </span>
+              </div>
+            </div>
+
+            <p class="card-text text-light flex-grow-1">
+              ${prof.descricao || 'Profissional qualificado pronto para atender sua necessidade com agilidade e qualidade.'}
+            </p>
+
+            <div class="border-top border-secondary pt-3 mt-2">
+              <div class="small text-muted mb-2">
+                <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                ${prof.cidade || 'Recife'} - ${prof.estado || 'PE'}
+              </div>
+              <a href="${linkWa}" target="_blank" rel="noopener noreferrer" class="btn btn-danger w-100 fw-bold d-flex align-items-center justify-content-center gap-2">
+                <i class="bi bi-whatsapp"></i> Chamar no WhatsApp
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Função de busca e filtro em tempo real
+function filtrarProfissionais() {
+  const termo = document.getElementById('searchInput').value.toLowerCase().trim();
+
+  const filtrados = profissionaisData.filter(prof => {
+    const nome = (prof.nome || '').toLowerCase();
+    const espec = (prof.especialidade || '').toLowerCase();
+    const desc = (prof.descricao || '').toLowerCase();
+    const cidade = (prof.cidade || '').toLowerCase();
+
+    return nome.includes(termo) || espec.includes(termo) || desc.includes(termo) || cidade.includes(termo);
+  });
+
+  renderizarProfissionais(filtrados);
+}
+
+// Gera o link da API oficial do WhatsApp (Funciona no celular abrindo o App e no PC abrindo a Web)
+function gerarLinkWhatsapp(telefone, nome, especialidade) {
+  let numLimpo = (telefone || '').replace(/\D/g, '');
+
+  if (!numLimpo) return '#';
+
+  if (!numLimpo.startsWith('55')) {
+    numLimpo = '55' + numLimpo;
+  }
+
+  const mensagem = `Olá ${nome}! Vi seu perfil no CapacitaLocal / JR Serviços como ${especialidade} e gostaria de solicitar um orçamento.`;
+
+  // Utiliza a API universal do WhatsApp que ativa o App no celular sem passar por SMS
+  return `https://api.whatsapp.com/send?phone=${numLimpo}&text=${encodeURIComponent(mensagem)}`;
+}
+
+// Retorna as iniciais do nome para o avatar
+function getIniciais(nome) {
+  if (!nome) return 'JR';
+  const partes = nome.trim().split(' ');
+  if (partes.length === 1) return partes[0].substring(0, 2).toUpperCase();
+  return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+}

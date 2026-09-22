@@ -2,27 +2,28 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
+const axios = require('axios');
 
 const app = express();
 
-// 1. CONFIGURAÇÃO SIMPLIFICADA E COMPLETA DO CORS
-// O middleware app.use(cors()) já trata as requisições OPTIONS automaticamente para todas as rotas
+// 1. CONFIGURAÇÕES DE MIDDLEWARES
 app.use(cors());
-
-// 2. MIDDLEWARES PARA TRATAR O CORPO DAS REQUISIÇÕES
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// SERVE OS ARQUIVOS DA PASTA PUBLIC
+// Serve os arquivos da pasta 'public' (front-end)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// CONEXÃO BANCO DE DADOS SQLITE
+// 2. CONFIGURAÇÃO E CONEXÃO DO BANCO DE DADOS SQLITE
 const db = new sqlite3.Database('./database.db', (err) => {
-  if (err) console.error('Erro ao conectar ao SQLite:', err.message);
-  else console.log('>>> Banco de dados SQLite ativo.');
+  if (err) {
+    console.error('Erro ao conectar ao SQLite:', err.message);
+  } else {
+    console.log('>>> Banco de dados SQLite ativo.');
+  }
 });
 
-// CRIAÇÃO DAS TABELAS
+// Criação das tabelas
 db.serialize(() => {
   db.run(`
     CREATE TABLE IF NOT EXISTS trabalhadores (
@@ -52,7 +53,45 @@ db.serialize(() => {
   `);
 });
 
-// ROTA POST DE CADASTRO TRABALHADOR
+// 3. FUNÇÃO AUXILIAR: ENVIO AUTOMÁTICO DE NOTIFICAÇÃO VIA WHATSAPP (API)
+// Altere as constantes abaixo quando contratar/configurar seu provedor de API do WhatsApp (Evolution API, Z-API, etc.)
+const WHATSAPP_API_URL = 'https://sua-api-whatsapp.com/message/sendText/sua-instancia';
+const WHATSAPP_API_KEY = 'SEU_TOKEN_DE_AUTENTICACAO';
+
+async function enviarWhatsappAutomatico(telefone, texto) {
+  try {
+    let numLimpo = (telefone || '').replace(/\D/g, '');
+    if (!numLimpo) return;
+
+    if (!numLimpo.startsWith('55')) {
+      numLimpo = '55' + numLimpo;
+    }
+
+    // Chamada silenciosa em segundo plano para o servidor do WhatsApp
+    await axios.post(
+      WHATSAPP_API_URL,
+      {
+        number: numLimpo,
+        text: texto
+      },
+      {
+        headers: {
+          'apikey': WHATSAPP_API_KEY,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    console.log(`[WhatsApp API] Notificação enviada com sucesso para ${numLimpo}`);
+  } catch (error) {
+    // Log apenas no terminal do servidor, sem interromper o fluxo do usuário
+    console.log(`[WhatsApp API] Aviso: Não foi possível enviar notificação automática para ${telefone}. (${error.message})`);
+  }
+}
+
+// 4. ROTAS DA API
+
+// POST: Cadastro de Trabalhador / Profissional
 app.post('/api/cadastrar-trabalhador', (req, res) => {
   const { nome, cpf, email, telefone, especialidade, valorHora, localizacao, descricao } = req.body;
 
@@ -68,13 +107,23 @@ app.post('/api/cadastrar-trabalhador', (req, res) => {
       if (err.message.includes('UNIQUE constraint failed')) {
         return res.status(400).json({ erro: 'CPF já cadastrado.' });
       }
-      return res.status(500).json({ erro: 'Erro ao salvar no banco de dados.' });
+      return res.status(500).json({ erro: 'Erro ao salvar profissional no banco de dados.' });
     }
+
+    // Disparo automático via WhatsApp para o trabalhador
+    const msgTrabalhador = 
+      `🛠️ *CapacitaLocal / JR Serviços*\n\n` +
+      `Olá *${nome}*!\n` +
+      `Seu perfil de *${especialidade}* foi cadastrado com sucesso na nossa plataforma.\n\n` +
+      `Agora contratantes e empresas poderão visualizar seus dados e entrar em contato diretamente.`;
+
+    enviarWhatsappAutomatico(telefone, msgTrabalhador);
+
     return res.status(201).json({ sucesso: true, mensagem: 'Profissional cadastrado com sucesso!' });
   });
 });
 
-// ROTA POST DE CADASTRO EMPRESA
+// POST: Cadastro de Empresa
 app.post('/api/cadastrar-empresa', (req, res) => {
   const { nomeEmpresa, cnpj, email, telefone, responsavel, ramo, endereco } = req.body;
 
@@ -92,11 +141,21 @@ app.post('/api/cadastrar-empresa', (req, res) => {
       }
       return res.status(500).json({ erro: 'Erro ao salvar empresa no banco de dados.' });
     }
+
+    // Disparo automático via WhatsApp para a empresa
+    const msgEmpresa = 
+      `🏢 *CapacitaLocal / JR Serviços*\n\n` +
+      `Olá *${responsavel}*!\n` +
+      `A empresa *${nomeEmpresa}* foi cadastrada com sucesso.\n\n` +
+      `Acesse nosso painel para visualizar os profissionais disponíveis na região.`;
+
+    enviarWhatsappAutomatico(telefone, msgEmpresa);
+
     return res.status(201).json({ sucesso: true, mensagem: 'Empresa cadastrada com sucesso!' });
   });
 });
 
-// ROTAS GET PARA CONSULTA
+// GET: Consulta de Trabalhadores
 app.get('/api/trabalhadores', (req, res) => {
   db.all("SELECT * FROM trabalhadores ORDER BY id DESC", [], (err, rows) => {
     if (err) return res.status(500).json({ erro: err.message });
@@ -104,6 +163,7 @@ app.get('/api/trabalhadores', (req, res) => {
   });
 });
 
+// GET: Consulta de Empresas
 app.get('/api/empresas', (req, res) => {
   db.all("SELECT * FROM empresas ORDER BY id DESC", [], (err, rows) => {
     if (err) return res.status(500).json({ erro: err.message });
@@ -111,7 +171,7 @@ app.get('/api/empresas', (req, res) => {
   });
 });
 
-// INICIALIZAÇÃO DO SERVIDOR
+// 5. INICIALIZAÇÃO DO SERVIDOR
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`>>> Servidor rodando na porta ${PORT}`);
